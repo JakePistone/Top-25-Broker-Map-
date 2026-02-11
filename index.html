@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Top 25 Market Brokers</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:#f4f6f9; }
+
+#header{
+    background:#002D62;
+    color:white;
+    padding:18px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+#title{
+    font-size:26px;
+    font-weight:600;
+}
+
+#marketSelect{
+    padding:8px 12px;
+    border-radius:6px;
+    border:none;
+    font-size:14px;
+}
+
+#map{
+    height:calc(100vh - 72px);
+}
+
+/* Smaller professional rank pins */
+.rank-pin{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:#002D62;
+    color:#fff;
+    text-align:center;
+    line-height:28px;
+    font-size:12px;
+    font-weight:700;
+    border:2px solid #ffffff;
+    box-shadow:0 2px 6px rgba(0,0,0,0.3);
+}
+
+.leaflet-popup-content-wrapper{
+    border-radius:10px;
+    max-width:340px;
+}
+
+.popup-title{
+    font-weight:600;
+    font-size:15px;
+    color:#002D62;
+    margin-bottom:4px;
+}
+
+.rank-label{
+    font-size:13px;
+    margin-bottom:10px;
+    color:#555;
+}
+
+.broker{
+    margin-bottom:10px;
+    font-size:13px;
+}
+
+.broker-name{
+    font-weight:600;
+}
+
+.meta{
+    font-size:12px;
+    color:#555;
+}
+
+a{
+    color:#0A66C2;
+    text-decoration:none;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+    <div id="title">Top 25 Market Brokers</div>
+    <select id="marketSelect">
+        <option value="">Select a Market</option>
+    </select>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+var map = L.map('map').setView([39.5,-98.35],4);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap contributors'
+}).addTo(map);
+
+function createRankIcon(rank){
+    return L.divIcon({
+        html:`<div class="rank-pin">${rank}</div>`,
+        className:'',
+        iconSize:[28,28],
+        iconAnchor:[14,28],
+        popupAnchor:[0,-28]
+    });
+}
+
+function brokerHTML(name,followers,post,link,phone,email){
+    return `
+    <div class="broker">
+        <div class="broker-name">${name}</div>
+        <div class="meta">${followers} followers</div>
+        <div class="meta">Last Post: ${post}</div>
+        ${phone ? `<div class="meta">📞 ${phone}</div>` : ""}
+        ${email ? `<div class="meta">✉️ ${email}</div>` : ""}
+        <div><a href="${link}" target="_blank">LinkedIn</a></div>
+    </div>`;
+}
+
+const markets = [
+
+{rank:1,name:"Dallas-Fort Worth-Arlington",coords:[32.7630,-97.0326],brokers:`
+${brokerHTML("Blake Waltrip","1,179","Never","https://www.linkedin.com/in/blake-waltrip-2100b461/","(214) 438-6196","blake.waltrip@jll.com")}
+${brokerHTML("Brandon Brower","846","Reposted 3 months","https://www.linkedin.com/in/brandon-brower-b96522155/","214 438 6228","brandon.brower@jll.com")}
+${brokerHTML("Calvin Hull","1,985","Never","https://www.linkedin.com/in/calvin-t-hull-jr/","214 438 6173","calvin.hull@jll.com")}
+${brokerHTML("Madison Hornisher","1,184","Reposted 6 months","https://www.linkedin.com/in/madison-hornisher-73564a138/","817 334 8135","madison.hornisher@jll.com")}
+`},
+
+{rank:2,name:"Houston-Pasadena-The Woodlands",coords:[29.76,-95.37],brokers:`
+${brokerHTML("Jeff Venghaus","1,731","1 year","https://www.linkedin.com/in/jeffvenghaus/","713 888 4026","jeff.venghaus@jll.com")}
+${brokerHTML("Ryan Fuselier","1,616","Never","https://www.linkedin.com/in/ryanfuselier/","713 888 4032","ryan.fuselier@jll.com")}
+${brokerHTML("Brandon Clarke","1,262","Never","https://www.linkedin.com/in/brandon-clarke-a9605930/","713-425-1806","brandon.clarke@jll.com")}
+${brokerHTML("Louie Crapitto","505","Never","https://www.linkedin.com/in/louiecrapitto/","713 888 4054","louie.crapitto@jll.com")}
+`},
+
+{rank:3,name:"Atlanta-Sandy Springs-Roswell",coords:[33.7490,-84.3880],brokers:`
+${brokerHTML("Josh Hirsh","1,798","1 week","https://www.linkedin.com/in/josh-hirsh-a434bb2/","404 995 2218","josh.hirsh@jll.com")}
+${brokerHTML("Wit Truitt","879","Weak","https://www.linkedin.com/in/wit-truitt-sior-035b1b17/","770 401 8106","wit.truitt@jll.com")}
+${brokerHTML("Joey Kline","1,648","4 months","https://www.linkedin.com/in/joey-kline-5a96408/","404 579 5723","joey.kline@jll.com")}
+`},
+
+/* Remaining markets included below with correct coordinates */
+
+{rank:4,name:"Phoenix-Mesa-Chandler",coords:[33.4484,-112.0740],brokers:`
+${brokerHTML("Anthony J. Lydon, SIOR","1,714","6 days","https://www.linkedin.com/in/ajlydon/","602 282 6268","aj.lydon@jll.com")}
+${brokerHTML("Marc Hertzberg, SIOR","1,353","3 weeks","https://www.linkedin.com/in/marchertzberg/","602 282 6269","marc.hertzberg@jll.com")}
+`},
+
+{rank:5,name:"Charlotte-Concord-Gastonia",coords:[35.2271,-80.8431],brokers:`
+${brokerHTML("Patrick Byrnes","2,615","11 months","https://www.linkedin.com/in/patrickbyrnescharlotte/","201 274 9827","patrick.byrnes@jll.com")}
+${brokerHTML("Natalie Ceva","3,336","1 day","https://www.linkedin.com/in/natalie-ceva/","704 804 5757","natalie.ceva@jll.com")}
+${brokerHTML("Austin P. Jackson","813","1 Year","https://www.linkedin.com/in/austintkjackson/","919 424 8456","austinp.jackson@jll.com")}
+`},
+
+{rank:6,name:"Orlando-Kissimmee-Sanford",coords:[28.5383,-81.3792],brokers:`
+${brokerHTML("David Murphy","32,355","2 days","https://www.linkedin.com/in/dockhighguy/","(407) 766-1392","")}
+${brokerHTML("Monica Wonus","3,478","4 days","https://www.linkedin.com/in/monicabperez/","(407) 404-5042","")}
+`},
+
+{rank:7,name:"Washington-Arlington-Alexandria",coords:[38.9072,-77.0369],brokers:`
+${brokerHTML("Herman Bulls","19,678","4 days","https://www.linkedin.com/in/hermanbulls/","202 256-1814","herman.bulls@jll.com")}
+${brokerHTML("Sam Haas","1,370","2 months","https://www.linkedin.com/in/sam-haas-3813241bb/","703 485 8733","sam.haas@jll.com")}
+`},
+
+{rank:8,name:"Tampa-St. Petersburg-Clearwater",coords:[27.9506,-82.4572],brokers:`
+${brokerHTML("Caleb Lewis","3,274","2 days","https://www.linkedin.com/in/caleblewis1/","813 387 1289","caleb.lewis@jll.com")}
+`},
+
+{rank:9,name:"Austin-Round Rock-San Marcos",coords:[30.2672,-97.7431],brokers:`
+${brokerHTML("Paul Davis","1,918","7 months","https://www.linkedin.com/in/paul-davis-23a644154/","214-808-1519","paul.davis2@jll.com")}
+`},
+
+{rank:10,name:"Miami-Fort Lauderdale-West Palm Beach",coords:[25.7617,-80.1918],brokers:`
+${brokerHTML("Peter Sheridan","239","7 months","https://www.linkedin.com/in/peter-sheridan-36401784/","(954) 439-4941","")}
+${brokerHTML("Jeremy Cain","1,055","Never","https://www.linkedin.com/in/jeremy-cain-552779127/","(954) 233-3464","")}
+`},
+
+{rank:11,name:"New York-Newark-Jersey City",coords:[40.7222,-74.0225],brokers:`
+${brokerHTML("Rob Martin","2,550","Never","https://www.linkedin.com/in/robertmartin1/","203 940 2600","robert.martin@jll.com")}
+${brokerHTML("Rod Barnes","1,281","Never","https://www.linkedin.com/in/rodericksbarnes/","(212) 812-5978","")}
+${brokerHTML("Joseph Sorbara","1,869","4 days","https://www.linkedin.com/in/joseph-sorbara-6b346bb0/","631 962 7386","joseph.sorbara@jll.com")}
+`},
+
+{rank:12,name:"Seattle-Tacoma-Bellevue",coords:[47.6062,-122.3321],brokers:`
+${brokerHTML("Connor Raffety","1,534","9 months","https://www.linkedin.com/in/connor-raffety-b43b043a/","206 437 1006","connor.raffety@jll.com")}
+${brokerHTML("Alec Goodwin","4,368","1 month","https://www.linkedin.com/in/alecgoodwin/","424 421 9245","alec.goodwin@jll.com")}
+`},
+
+{rank:13,name:"Philadelphia-Camden-Wilmington",coords:[39.9526,-75.1652],brokers:`
+${brokerHTML("Mitch Russell","2,465","2 weeks","https://www.linkedin.com/in/mitch-russell/","610 249 2274","mitch.russell@jll.com")}
+`},
+
+{rank:14,name:"Los Angeles-Long Beach-Anaheim",coords:[34.2215,-118.1494],brokers:`
+${brokerHTML("Jeffrey Ingham","2,359","9 months","https://www.linkedin.com/in/jeffrey-ingham/","(949) 885-2990","")}
+`},
+
+{rank:15,name:"Chicago-Naperville-Elgin",coords:[41.8781,-87.6298],brokers:`
+${brokerHTML("Hillary Waldstein","1,510","2 weeks","https://www.linkedin.com/in/hillarywaldstein/","(312) 782-5800","")}
+${brokerHTML("Steven Spinell","4,875","4 months","https://www.linkedin.com/in/steven-spinell/","312 228 3936","steven.spinell@jll.com")}
+${brokerHTML("Dominic Carbonari","1,393","5 months","https://www.linkedin.com/in/dominic-carbonari-10a64224/","630 248 9354","dominic.carbonari@jll.com")}
+${brokerHTML("Grant Glattly","947","Never","https://www.linkedin.com/in/grant-w-glattly-4625683/","773 458 1411","grant.glattly@jll.com")}
+${brokerHTML("Sophia Spinell","2,778","11 months","https://www.linkedin.com/in/sophia-spinell-7ba226182/","708 522 2826","sophia.spinell@jll.com")}
+`},
+
+{rank:16,name:"San Antonio-New Braunfels",coords:[29.4241,-98.4936],brokers:`
+${brokerHTML("John Worthen","1,085","Never","https://www.linkedin.com/in/john-worthen-9708b64/","210 839 2007","john.worthen@jll.com")}
+`},
+
+{rank:17,name:"Boston-Cambridge-Newton",coords:[42.3601,-71.0589],brokers:`
+${brokerHTML("Brian Morrissey","915","Never","https://www.linkedin.com/in/brian-morrissey-5941478/","617 316 6487","brian.morrissey@jll.com")}
+${brokerHTML("Rob Mahoney","1,514","1 week","https://www.linkedin.com/in/rob-mahoney-62413aa/","617 316 6412","rob.mahoney@jll.com")}
+`},
+
+{rank:18,name:"Nashville-Davidson-Murfreesboro-Franklin",coords:[36.1627,-86.7816],brokers:`
+${brokerHTML("Kelsey Turnbow","1,476","6 days","https://www.linkedin.com/in/kelsey-ann-johnson/","509 688 5559","kelsey.turnbow@jll.com")}
+`},
+
+{rank:19,name:"Columbus",coords:[39.9612,-82.9988],brokers:`
+${brokerHTML("Dan Wendorf","5,599","2 months","https://www.linkedin.com/in/danwendorf/","614 460 4407","dan.wendorf@jll.com")}
+`},
+
+{rank:20,name:"Minneapolis-St. Paul-Bloomington",coords:[44.9778,-93.2650],brokers:`
+${brokerHTML("Alex Ach","1,501","4 months","https://www.linkedin.com/in/alexach/","612 217 5140","alex.ach@jll.com")}
+${brokerHTML("Connor Ott","1,423","1 year","https://www.linkedin.com/in/connor-ott-26655643/","612 217 6741","connor.ott@jll.com")}
+${brokerHTML("Michael Nanne","1,338","2 weeks","https://www.linkedin.com/in/michael-nanne-5533b8b0/","(612) 217-5150","michael.nanne@jll.com")}
+`},
+
+{rank:21,name:"Jacksonville",coords:[30.3322,-81.6557],brokers:`
+${brokerHTML("Luke Pope","3,189","9 months","https://www.linkedin.com/in/lukepope/","904 356 4550","luke.pope@jll.com")}
+`},
+
+{rank:22,name:"Las Vegas-Henderson-North Las Vegas",coords:[36.1699,-115.1398],brokers:`
+${brokerHTML("Garrett Toft","815","Never","https://www.linkedin.com/in/garrett-toft-8955ab11/","(702) 369-4868","")}
+${brokerHTML("Paul Sweetland, SIOR","2,662","7 months","https://www.linkedin.com/in/paul-sweetland-sior-143a7510/","(702) 836-3750","")}
+`},
+
+{rank:23,name:"Denver-Aurora-Centennial",coords:[39.7392,-104.9903],brokers:`
+${brokerHTML("Alec Torkelson","1,655","Never","https://www.linkedin.com/in/alectorkelson/","720 418 8031","alec.torkelson@jll.com")}
+${brokerHTML("Tim Bourdelais","1,542","Never","https://www.linkedin.com/in/timbourdelais/","303 390 5203","tim.bourdelais@jll.com")}
+`},
+
+{rank:24,name:"Salt Lake City-Provo-Logan",coords:[40.7608,-111.8910],brokers:`
+${brokerHTML("Rob Wheeler","2,041","5 months","https://www.linkedin.com/in/rswheeler4/","773 458 1358","rob.wheeler@jll.com")}
+`},
+
+{rank:25,name:"Detroit-Warren-Dearborn",coords:[42.3314,-83.0458],brokers:`
+${brokerHTML("Ben Schrode","1,351","Never","https://www.linkedin.com/in/benjamin-schrode-502371b4/","248 581 3325","ben.schrode@jll.com")}
+${brokerHTML("Marlee Kuhn","3,160","6 days","https://www.linkedin.com/in/marlee-delaney-kuhn-88834568/","248 890 1063","")}
+`}
+];
+
+const markerLookup = {};
+
+markets.forEach(m=>{
+    const marker = L.marker(m.coords,{icon:createRankIcon(m.rank)})
+        .addTo(map)
+        .bindPopup(`<div class="popup-title">${m.name}</div>
+                    <div class="rank-label">Rank #${m.rank}</div>
+                    ${m.brokers}`);
+
+    markerLookup[m.name] = marker;
+
+    const option = document.createElement("option");
+    option.value = m.name;
+    option.text = `#${m.rank} - ${m.name}`;
+    document.getElementById("marketSelect").appendChild(option);
+});
+
+document.getElementById("marketSelect").addEventListener("change",function(){
+    const selected = this.value;
+    if(markerLookup[selected]){
+        const marker = markerLookup[selected];
+        map.setView(marker.getLatLng(),8,{animate:true});
+        marker.openPopup();
+    }
+});
+</script>
+
+</body>
+</html>
