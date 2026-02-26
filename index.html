@@ -1,293 +1,481 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<title>Top 25 Market Brokers</title>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<style>
-body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:#f4f6f9; }
-
-#header{
-    background:#002D62;
-    color:white;
-    padding:18px 30px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-#title{
-    font-size:26px;
-    font-weight:600;
-}
-
-#marketSelect{
-    padding:8px 12px;
-    border-radius:6px;
-    border:none;
-    font-size:14px;
-}
-
-#map{
-    height:calc(100vh - 72px);
-}
-
-/* Smaller professional rank pins */
-.rank-pin{
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    background:#002D62;
-    color:#fff;
-    text-align:center;
-    line-height:28px;
-    font-size:12px;
-    font-weight:700;
-    border:2px solid #ffffff;
-    box-shadow:0 2px 6px rgba(0,0,0,0.3);
-}
-
-.leaflet-popup-content-wrapper{
-    border-radius:10px;
-    max-width:340px;
-}
-
-.popup-title{
-    font-weight:600;
-    font-size:15px;
-    color:#002D62;
-    margin-bottom:4px;
-}
-
-.rank-label{
-    font-size:13px;
-    margin-bottom:10px;
-    color:#555;
-}
-
-.broker{
-    margin-bottom:10px;
-    font-size:13px;
-}
-
-.broker-name{
-    font-weight:600;
-}
-
-.meta{
-    font-size:12px;
-    color:#555;
-}
-
-a{
-    color:#0A66C2;
-    text-decoration:none;
-}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Top 50 IOS Broker List Map</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    :root {
+      --navy: #002d62;
+      --navy-dark: #021c3d;
+      --ink: #0a152b;
+      --muted: #555;
+      --accent: #0a66c2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f6f9;
+      color: var(--ink);
+    }
+    #header {
+      background: linear-gradient(90deg, var(--navy-dark), var(--navy));
+      color: #fff;
+      padding: 14px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #title {
+      font-size: 22px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #marketSelect {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+    }
+    #toggleCounties {
+      background: #ffffff;
+      color: var(--navy);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #toggleCounties.is-on {
+      background: #5fa8ff;
+      color: #0a1f46;
+    }
+    #map {
+      height: calc(100vh - 70px);
+      width: 100%;
+    }
+    .rank-pin {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: #fff;
+      text-align: center;
+      line-height: 32px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .rank-pin.is-top {
+      background: #5fa8ff;
+      color: #0a1f46;
+      border-color: #ffffff;
+      box-shadow: 0 4px 10px rgba(95, 168, 255, 0.45);
+    }
+    .leaflet-popup-content-wrapper {
+      border-radius: 10px;
+      max-width: 340px;
+    }
+    .popup-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .rank-label {
+      font-size: 13px;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+    .broker {
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .broker-name {
+      font-weight: 600;
+    }
+    .meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .notice {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      background: #132b5d;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #cfe0ff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 12px;
+      max-width: 340px;
+      z-index: 500;
+      display: none;
+    }
+    .logo {
+      width: 90px;
+      height: auto;
+      display: inline-block;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 4px 6px;
+    }
+    @media (max-width: 800px) {
+      #header { flex-direction: column; align-items: flex-start; }
+      #marketSelect { width: 100%; }
+    }
+  </style>
 </head>
 <body>
-
-<div id="header">
-    <div id="title">Top 25 Market Brokers</div>
-    <select id="marketSelect">
+  <div id="header">
+    <div id="title">
+      <img class="logo" src="National IOS - MAIN (14).png" alt="National IOS logo" />
+      Top 50 IOS Brokers by MSA
+    </div>
+    <div id="controls">
+      <button id="toggleCounties" type="button">Show All Counties</button>
+      <select id="marketSelect">
         <option value="">Select a Market</option>
-    </select>
-</div>
+      </select>
+    </div>
+  </div>
 
-<div id="map"></div>
+  <div id="map"></div>
+  <div id="notice" class="notice"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+  <script>
+    const SHEET_GVIZ_URL = "https://docs.google.com/spreadsheets/d/12Elp_eoZyGx7Vz7YHKIMVFT8PPz-69_5Ch27gJm5Eh4/gviz/tq?tqx=out:json&gid=0";
+    const SHEET_GVIZ_PUBLISHED_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYkwcIW0fyYXLdGC4VndZy_snIEJ55SdicAFIHYlugHLiQ7pXUkeeFVFWukdQr3aDWwfScJoIl_jZv/gviz/tq?tqx=out:json";
+    const COUNTIES_GEOJSON_URL = "data/counties_selected.geojson";
 
-var map = L.map('map').setView([39.5,-98.35],4);
+    const map = L.map("map", {
+      zoomControl: true,
+      scrollWheelZoom: true
+    }).setView([39.5, -98.35], 4.6);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap contributors'
-}).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
 
-function createRankIcon(rank){
-    return L.divIcon({
-        html:`<div class="rank-pin">${rank}</div>`,
-        className:'',
-        iconSize:[28,28],
-        iconAnchor:[14,28],
-        popupAnchor:[0,-28]
-    });
-}
+    const markers = L.layerGroup().addTo(map);
+    let countyData = null;
+    let countyLayer = null;
+    let currentMSA = null;
+    let allRecords = [];
+    let showAllCounties = false;
+    const toggleCountiesButton = document.getElementById("toggleCounties");
+    const select = document.getElementById("marketSelect");
+    const notice = document.getElementById("notice");
 
-function brokerHTML(name,followers,post,link,phone,email){
-    return `
-    <div class="broker">
-        <div class="broker-name">${name}</div>
-        <div class="meta">${followers} followers</div>
-        <div class="meta">Last Post: ${post}</div>
-        ${phone ? `<div class="meta">📞 ${phone}</div>` : ""}
-        ${email ? `<div class="meta">✉️ ${email}</div>` : ""}
-        <div><a href="${link}" target="_blank">LinkedIn</a></div>
-    </div>`;
-}
+    const columnAliases = {
+      msa: ["msa", "market", "market name"],
+      rank: ["rank", "#", "ranking"],
+      name: ["broker", "broker name", "name", "contact"],
+      phone: ["phone", "phone number", "cell"],
+      email: ["email", "email address"],
+      linkedin: ["linkedin", "linked in", "linked-in"],
+      lat: ["lat", "latitude", "latitude "],
+      lng: ["lng", "lon", "longitude", "long", "longitude "]
+    };
 
-const markets = [
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let current = "";
+      let inQuotes = false;
 
-{rank:1,name:"Dallas-Fort Worth-Arlington",coords:[32.7630,-97.0326],brokers:`
-${brokerHTML("Blake Waltrip","1,179","Never","https://www.linkedin.com/in/blake-waltrip-2100b461/","(214) 438-6196","blake.waltrip@jll.com")}
-${brokerHTML("Brandon Brower","846","Reposted 3 months","https://www.linkedin.com/in/brandon-brower-b96522155/","214 438 6228","brandon.brower@jll.com")}
-${brokerHTML("Calvin Hull","1,985","Never","https://www.linkedin.com/in/calvin-t-hull-jr/","214 438 6173","calvin.hull@jll.com")}
-${brokerHTML("Madison Hornisher","1,184","Reposted 6 months","https://www.linkedin.com/in/madison-hornisher-73564a138/","817 334 8135","madison.hornisher@jll.com")}
-`},
-
-{rank:2,name:"Houston-Pasadena-The Woodlands",coords:[29.76,-95.37],brokers:`
-${brokerHTML("Jeff Venghaus","1,731","1 year","https://www.linkedin.com/in/jeffvenghaus/","713 888 4026","jeff.venghaus@jll.com")}
-${brokerHTML("Ryan Fuselier","1,616","Never","https://www.linkedin.com/in/ryanfuselier/","713 888 4032","ryan.fuselier@jll.com")}
-${brokerHTML("Brandon Clarke","1,262","Never","https://www.linkedin.com/in/brandon-clarke-a9605930/","713-425-1806","brandon.clarke@jll.com")}
-${brokerHTML("Louie Crapitto","505","Never","https://www.linkedin.com/in/louiecrapitto/","713 888 4054","louie.crapitto@jll.com")}
-`},
-
-{rank:3,name:"Atlanta-Sandy Springs-Roswell",coords:[33.7490,-84.3880],brokers:`
-${brokerHTML("Josh Hirsh","1,798","1 week","https://www.linkedin.com/in/josh-hirsh-a434bb2/","404 995 2218","josh.hirsh@jll.com")}
-${brokerHTML("Wit Truitt","879","Weak","https://www.linkedin.com/in/wit-truitt-sior-035b1b17/","770 401 8106","wit.truitt@jll.com")}
-${brokerHTML("Joey Kline","1,648","4 months","https://www.linkedin.com/in/joey-kline-5a96408/","404 579 5723","joey.kline@jll.com")}
-`},
-
-/* Remaining markets included below with correct coordinates */
-
-{rank:4,name:"Phoenix-Mesa-Chandler",coords:[33.4484,-112.0740],brokers:`
-${brokerHTML("Anthony J. Lydon, SIOR","1,714","6 days","https://www.linkedin.com/in/ajlydon/","602 282 6268","aj.lydon@jll.com")}
-${brokerHTML("Marc Hertzberg, SIOR","1,353","3 weeks","https://www.linkedin.com/in/marchertzberg/","602 282 6269","marc.hertzberg@jll.com")}
-`},
-
-{rank:5,name:"Charlotte-Concord-Gastonia",coords:[35.2271,-80.8431],brokers:`
-${brokerHTML("Patrick Byrnes","2,615","11 months","https://www.linkedin.com/in/patrickbyrnescharlotte/","201 274 9827","patrick.byrnes@jll.com")}
-${brokerHTML("Natalie Ceva","3,336","1 day","https://www.linkedin.com/in/natalie-ceva/","704 804 5757","natalie.ceva@jll.com")}
-${brokerHTML("Austin P. Jackson","813","1 Year","https://www.linkedin.com/in/austintkjackson/","919 424 8456","austinp.jackson@jll.com")}
-`},
-
-{rank:6,name:"Orlando-Kissimmee-Sanford",coords:[28.5383,-81.3792],brokers:`
-${brokerHTML("David Murphy","32,355","2 days","https://www.linkedin.com/in/dockhighguy/","(407) 766-1392","")}
-${brokerHTML("Monica Wonus","3,478","4 days","https://www.linkedin.com/in/monicabperez/","(407) 404-5042","")}
-`},
-
-{rank:7,name:"Washington-Arlington-Alexandria",coords:[38.9072,-77.0369],brokers:`
-${brokerHTML("Herman Bulls","19,678","4 days","https://www.linkedin.com/in/hermanbulls/","202 256-1814","herman.bulls@jll.com")}
-${brokerHTML("Sam Haas","1,370","2 months","https://www.linkedin.com/in/sam-haas-3813241bb/","703 485 8733","sam.haas@jll.com")}
-`},
-
-{rank:8,name:"Tampa-St. Petersburg-Clearwater",coords:[27.9506,-82.4572],brokers:`
-${brokerHTML("Caleb Lewis","3,274","2 days","https://www.linkedin.com/in/caleblewis1/","813 387 1289","caleb.lewis@jll.com")}
-`},
-
-{rank:9,name:"Austin-Round Rock-San Marcos",coords:[30.2672,-97.7431],brokers:`
-${brokerHTML("Paul Davis","1,918","7 months","https://www.linkedin.com/in/paul-davis-23a644154/","214-808-1519","paul.davis2@jll.com")}
-`},
-
-{rank:10,name:"Miami-Fort Lauderdale-West Palm Beach",coords:[25.7617,-80.1918],brokers:`
-${brokerHTML("Peter Sheridan","239","7 months","https://www.linkedin.com/in/peter-sheridan-36401784/","(954) 439-4941","")}
-${brokerHTML("Jeremy Cain","1,055","Never","https://www.linkedin.com/in/jeremy-cain-552779127/","(954) 233-3464","")}
-`},
-
-{rank:11,name:"New York-Newark-Jersey City",coords:[40.7222,-74.0225],brokers:`
-${brokerHTML("Rob Martin","2,550","Never","https://www.linkedin.com/in/robertmartin1/","203 940 2600","robert.martin@jll.com")}
-${brokerHTML("Rod Barnes","1,281","Never","https://www.linkedin.com/in/rodericksbarnes/","(212) 812-5978","")}
-${brokerHTML("Joseph Sorbara","1,869","4 days","https://www.linkedin.com/in/joseph-sorbara-6b346bb0/","631 962 7386","joseph.sorbara@jll.com")}
-`},
-
-{rank:12,name:"Seattle-Tacoma-Bellevue",coords:[47.6062,-122.3321],brokers:`
-${brokerHTML("Connor Raffety","1,534","9 months","https://www.linkedin.com/in/connor-raffety-b43b043a/","206 437 1006","connor.raffety@jll.com")}
-${brokerHTML("Alec Goodwin","4,368","1 month","https://www.linkedin.com/in/alecgoodwin/","424 421 9245","alec.goodwin@jll.com")}
-`},
-
-{rank:13,name:"Philadelphia-Camden-Wilmington",coords:[39.9526,-75.1652],brokers:`
-${brokerHTML("Mitch Russell","2,465","2 weeks","https://www.linkedin.com/in/mitch-russell/","610 249 2274","mitch.russell@jll.com")}
-`},
-
-{rank:14,name:"Los Angeles-Long Beach-Anaheim",coords:[34.2215,-118.1494],brokers:`
-${brokerHTML("Jeffrey Ingham","2,359","9 months","https://www.linkedin.com/in/jeffrey-ingham/","(949) 885-2990","")}
-`},
-
-{rank:15,name:"Chicago-Naperville-Elgin",coords:[41.8781,-87.6298],brokers:`
-${brokerHTML("Hillary Waldstein","1,510","2 weeks","https://www.linkedin.com/in/hillarywaldstein/","(312) 782-5800","")}
-${brokerHTML("Steven Spinell","4,875","4 months","https://www.linkedin.com/in/steven-spinell/","312 228 3936","steven.spinell@jll.com")}
-${brokerHTML("Dominic Carbonari","1,393","5 months","https://www.linkedin.com/in/dominic-carbonari-10a64224/","630 248 9354","dominic.carbonari@jll.com")}
-${brokerHTML("Grant Glattly","947","Never","https://www.linkedin.com/in/grant-w-glattly-4625683/","773 458 1411","grant.glattly@jll.com")}
-${brokerHTML("Sophia Spinell","2,778","11 months","https://www.linkedin.com/in/sophia-spinell-7ba226182/","708 522 2826","sophia.spinell@jll.com")}
-`},
-
-{rank:16,name:"San Antonio-New Braunfels",coords:[29.4241,-98.4936],brokers:`
-${brokerHTML("John Worthen","1,085","Never","https://www.linkedin.com/in/john-worthen-9708b64/","210 839 2007","john.worthen@jll.com")}
-`},
-
-{rank:17,name:"Boston-Cambridge-Newton",coords:[42.3601,-71.0589],brokers:`
-${brokerHTML("Brian Morrissey","915","Never","https://www.linkedin.com/in/brian-morrissey-5941478/","617 316 6487","brian.morrissey@jll.com")}
-${brokerHTML("Rob Mahoney","1,514","1 week","https://www.linkedin.com/in/rob-mahoney-62413aa/","617 316 6412","rob.mahoney@jll.com")}
-`},
-
-{rank:18,name:"Nashville-Davidson-Murfreesboro-Franklin",coords:[36.1627,-86.7816],brokers:`
-${brokerHTML("Kelsey Turnbow","1,476","6 days","https://www.linkedin.com/in/kelsey-ann-johnson/","509 688 5559","kelsey.turnbow@jll.com")}
-`},
-
-{rank:19,name:"Columbus",coords:[39.9612,-82.9988],brokers:`
-${brokerHTML("Dan Wendorf","5,599","2 months","https://www.linkedin.com/in/danwendorf/","614 460 4407","dan.wendorf@jll.com")}
-`},
-
-{rank:20,name:"Minneapolis-St. Paul-Bloomington",coords:[44.9778,-93.2650],brokers:`
-${brokerHTML("Alex Ach","1,501","4 months","https://www.linkedin.com/in/alexach/","612 217 5140","alex.ach@jll.com")}
-${brokerHTML("Connor Ott","1,423","1 year","https://www.linkedin.com/in/connor-ott-26655643/","612 217 6741","connor.ott@jll.com")}
-${brokerHTML("Michael Nanne","1,338","2 weeks","https://www.linkedin.com/in/michael-nanne-5533b8b0/","(612) 217-5150","michael.nanne@jll.com")}
-`},
-
-{rank:21,name:"Jacksonville",coords:[30.3322,-81.6557],brokers:`
-${brokerHTML("Luke Pope","3,189","9 months","https://www.linkedin.com/in/lukepope/","904 356 4550","luke.pope@jll.com")}
-`},
-
-{rank:22,name:"Las Vegas-Henderson-North Las Vegas",coords:[36.1699,-115.1398],brokers:`
-${brokerHTML("Garrett Toft","815","Never","https://www.linkedin.com/in/garrett-toft-8955ab11/","(702) 369-4868","")}
-${brokerHTML("Paul Sweetland, SIOR","2,662","7 months","https://www.linkedin.com/in/paul-sweetland-sior-143a7510/","(702) 836-3750","")}
-`},
-
-{rank:23,name:"Denver-Aurora-Centennial",coords:[39.7392,-104.9903],brokers:`
-${brokerHTML("Alec Torkelson","1,655","Never","https://www.linkedin.com/in/alectorkelson/","720 418 8031","alec.torkelson@jll.com")}
-${brokerHTML("Tim Bourdelais","1,542","Never","https://www.linkedin.com/in/timbourdelais/","303 390 5203","tim.bourdelais@jll.com")}
-`},
-
-{rank:24,name:"Salt Lake City-Provo-Logan",coords:[40.7608,-111.8910],brokers:`
-${brokerHTML("Rob Wheeler","2,041","5 months","https://www.linkedin.com/in/rswheeler4/","773 458 1358","rob.wheeler@jll.com")}
-`},
-
-{rank:25,name:"Detroit-Warren-Dearborn",coords:[42.3314,-83.0458],brokers:`
-${brokerHTML("Ben Schrode","1,351","Never","https://www.linkedin.com/in/benjamin-schrode-502371b4/","248 581 3325","ben.schrode@jll.com")}
-${brokerHTML("Marlee Kuhn","3,160","6 days","https://www.linkedin.com/in/marlee-delaney-kuhn-88834568/","248 890 1063","")}
-`}
-];
-
-const markerLookup = {};
-
-markets.forEach(m=>{
-    const marker = L.marker(m.coords,{icon:createRankIcon(m.rank)})
-        .addTo(map)
-        .bindPopup(`<div class="popup-title">${m.name}</div>
-                    <div class="rank-label">Rank #${m.rank}</div>
-                    ${m.brokers}`);
-
-    markerLookup[m.name] = marker;
-
-    const option = document.createElement("option");
-    option.value = m.name;
-    option.text = `#${m.rank} - ${m.name}`;
-    document.getElementById("marketSelect").appendChild(option);
-});
-
-document.getElementById("marketSelect").addEventListener("change",function(){
-    const selected = this.value;
-    if(markerLookup[selected]){
-        const marker = markerLookup[selected];
-        map.setView(marker.getLatLng(),8,{animate:true});
-        marker.openPopup();
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          row.push(current);
+          current = "";
+        } else if (char === '\n' && !inQuotes) {
+          row.push(current);
+          rows.push(row);
+          row = [];
+          current = "";
+        } else if (char !== '\r') {
+          current += char;
+        }
+      }
+      if (current.length || row.length) {
+        row.push(current);
+        rows.push(row);
+      }
+      return rows;
     }
-});
-</script>
 
+    function normalizeHeader(header) {
+      return header.trim().toLowerCase();
+    }
+
+    function mapHeaders(headers) {
+      const map = {};
+      headers.forEach((header, idx) => {
+        const normalized = normalizeHeader(header);
+        for (const key in columnAliases) {
+          if (columnAliases[key].includes(normalized)) {
+            map[key] = idx;
+          }
+        }
+      });
+      return map;
+    }
+
+    function setNotice(message) {
+      if (!message) {
+        notice.style.display = "none";
+        notice.textContent = "";
+        return;
+      }
+      notice.textContent = message;
+      notice.style.display = "block";
+    }
+
+    function brokerHTML(record) {
+      return `
+        <div class="broker">
+          <div class="broker-name">${record.name || ""}</div>
+          ${record.phone ? `<div class="meta">📞 ${record.phone}</div>` : ""}
+          ${record.email ? `<div class="meta">✉️ ${record.email}</div>` : ""}
+          ${record.linkedin ? `<div><a href="${record.linkedin}" target="_blank" rel="noopener">LinkedIn</a></div>` : ""}
+        </div>
+      `;
+    }
+
+    function buildPopup(market) {
+      return `
+        <div class="popup-title">${market.msa}</div>
+        <div class="rank-label">Rank #${market.rank}</div>
+        ${market.brokers.map(brokerHTML).join("")}
+      `;
+    }
+
+    function clearMarkers() {
+      markers.clearLayers();
+    }
+
+    function addMarkers(records) {
+      clearMarkers();
+      records.forEach((record) => {
+        if (!record.lat || !record.lng) return;
+        const isTop = String(record.rank).trim() === "1";
+        const icon = L.divIcon({
+          html: `<div class="rank-pin ${isTop ? "is-top" : ""}">${record.rank}</div>`,
+          className: "",
+          iconSize: [28, 28],
+          iconAnchor: [14, 28],
+          popupAnchor: [0, -28]
+        });
+        const marker = L.marker([record.lat, record.lng], { icon });
+        marker.bindPopup(buildPopup(record));
+        marker.on("popupopen", () => {
+          currentMSA = record.msa;
+          renderCounties(currentMSA, true);
+        });
+        marker.on("popupclose", () => {
+          currentMSA = select.value || null;
+          renderCounties(currentMSA, true);
+        });
+        markers.addLayer(marker);
+      });
+    }
+
+    function populateMarkets(records) {
+      records.forEach((record) => {
+        if (!record.msa) return;
+        const option = document.createElement("option");
+        option.value = record.msa;
+        const rankLabel = record.rank ? `#${record.rank} - ` : "";
+        option.textContent = `${rankLabel}${record.msa}`;
+        select.appendChild(option);
+      });
+    }
+
+    function attachFilter(records) {
+      select.addEventListener("change", () => {
+        const value = select.value;
+        currentMSA = value || null;
+        renderCounties(currentMSA, true);
+        if (!value) {
+          map.setView([39.5, -98.35], 4);
+        }
+      });
+    }
+
+    function renderCounties(msa, fit = false) {
+      if (countyLayer) {
+        map.removeLayer(countyLayer);
+        countyLayer = null;
+      }
+      if (!countyData) return;
+      const normalizeMSA = (value) => {
+        if (!value) return "";
+        return value
+          .toLowerCase()
+          .split(",")[0]
+          .replace(/\s+/g, " ")
+          .trim();
+      };
+      const target = normalizeMSA(msa);
+      countyLayer = L.geoJSON(countyData, {
+        filter: (feature) => {
+          if (showAllCounties) return true;
+          return target && normalizeMSA(feature.properties.MSA_Name) === target;
+        },
+        style: {
+          color: "#123c7a",
+          weight: 2,
+          fillOpacity: 0
+        }
+      }).addTo(map);
+      if (fit && countyLayer.getLayers().length) {
+        map.fitBounds(countyLayer.getBounds(), { padding: [30, 30] });
+      }
+    }
+
+    async function loadCounties() {
+      try {
+        const resp = await fetch(COUNTIES_GEOJSON_URL, { cache: "no-store" });
+        if (!resp.ok) return;
+        countyData = await resp.json();
+        renderCounties(currentMSA, true);
+      } catch (err) {
+        // County outlines are optional; ignore on failure
+      }
+    }
+
+    function loadDataFromTable(table) {
+      const headers = table.cols.map(col => col.label || "");
+      const headerMap = mapHeaders(headers || []);
+
+      if (headerMap.lat === undefined || headerMap.lng === undefined || headerMap.msa === undefined) {
+        setNotice("Sheet must include columns for MSA, Latitude, and Longitude. Add 'Latitude' and 'Longitude' columns to place dots on the map.");
+      } else {
+        setNotice("");
+      }
+
+      const raw = table.rows.map((row) => {
+        const cells = row.c || [];
+        const get = (idx) => (idx === undefined || !cells[idx]) ? "" : String(cells[idx].v ?? "");
+        return {
+          msa: get(headerMap.msa),
+          rank: get(headerMap.rank),
+          name: get(headerMap.name),
+          phone: get(headerMap.phone),
+          email: get(headerMap.email),
+          linkedin: get(headerMap.linkedin),
+          lat: parseFloat(get(headerMap.lat)),
+          lng: parseFloat(get(headerMap.lng))
+        };
+      });
+
+      const grouped = new Map();
+      raw.forEach((row) => {
+        if (!row.msa) return;
+        if (!grouped.has(row.msa)) {
+          grouped.set(row.msa, {
+            msa: row.msa,
+            rank: row.rank || "",
+            lat: row.lat,
+            lng: row.lng,
+            brokers: []
+          });
+        }
+        const market = grouped.get(row.msa);
+        if (row.rank) market.rank = row.rank;
+        if (!Number.isNaN(row.lat)) market.lat = row.lat;
+        if (!Number.isNaN(row.lng)) market.lng = row.lng;
+        if (row.name || row.phone || row.email || row.linkedin) {
+          market.brokers.push({
+            name: row.name,
+            phone: row.phone,
+            email: row.email,
+            linkedin: row.linkedin
+          });
+        }
+      });
+
+      const records = Array.from(grouped.values()).filter(r => !Number.isNaN(r.lat) && !Number.isNaN(r.lng));
+      records.sort((a, b) => Number(a.rank) - Number(b.rank));
+      allRecords = records;
+
+      populateMarkets(records);
+      addMarkers(records);
+      attachFilter(records);
+    }
+
+    function loadData() {
+      setNotice("Loading broker data...");
+      window.google = window.google || {};
+      window.google.visualization = window.google.visualization || {};
+      window.google.visualization.Query = window.google.visualization.Query || {};
+      window.google.visualization.Query.setResponse = (response) => {
+        try {
+          if (!response || !response.table) {
+            throw new Error("No table data");
+          }
+          loadDataFromTable(response.table);
+        } catch (err) {
+          setNotice("Could not parse the Google Sheet data. Check the column headers.");
+        }
+      };
+
+      const script = document.createElement("script");
+      script.src = SHEET_GVIZ_URL;
+      script.onerror = () => {
+        const fallback = document.createElement("script");
+        fallback.src = SHEET_GVIZ_PUBLISHED_URL;
+        fallback.onerror = () => setNotice("Could not load the Google Sheet. Ensure it is shared publicly or published to the web.");
+        document.body.appendChild(fallback);
+      };
+      document.body.appendChild(script);
+    }
+
+    loadData();
+    loadCounties();
+
+    toggleCountiesButton.addEventListener("click", () => {
+      showAllCounties = !showAllCounties;
+      toggleCountiesButton.classList.toggle("is-on", showAllCounties);
+      toggleCountiesButton.textContent = showAllCounties ? "Hide All Counties" : "Show All Counties";
+      renderCounties(currentMSA, !showAllCounties ? true : false);
+    });
+  </script>
 </body>
 </html>
